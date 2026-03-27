@@ -1,13 +1,121 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// 1. Définition du type d'espace (contrainte métier)
+enum SpaceType {
+  OPEN_SPACE
+  BUREAU_PRIVE
+  SALLE_REUNION
+  CABINE_TELEPHONIQUE
+}
+
+// 2. Modèle des Espaces
+model Space {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  capacity    Int
+  type        SpaceType
+  bookings    Booking[] // Relation inverse : un espace a plusieurs réservations
+
+  @@map("space")
+}
+
+// 3. Modèle des Réservations (La table de liaison)
+model Booking {
+  id        String   @id @default(cuid())
+  date      DateTime // La date de la réservation
+  startTime DateTime // Heure de début
+  endTime   DateTime // Heure de fin
+  
+  // Relation avec l'utilisateur (Membre)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  // Relation avec l'espace
+  spaceId   String
+  space     Space    @relation(fields: [spaceId], references: [id])
+
+  @@map("booking")
+}
+
+enum Role {
+  VISITEUR  
+  MEMBRE    
+  ADMIN     
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          Role      @default(MEMBRE)
+  sessions      Session[]
+  accounts      Account[]
+  images        Image[]
+  bookings      Booking[]
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id])
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+model Image {
+  id Int @id @default(autoincrement())
+  url String
+  publicId String
+  createdAt DateTime @default(now())
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  @@map("images")
 }
