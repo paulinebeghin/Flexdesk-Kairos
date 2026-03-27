@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { BookingAllSchema, BookingCreateSchema, BookingUpdateSchema, BookingDetailSchema } from "@/dtos/booking.dto";
 import * as bookingService from "../services/booking.service"
 
-export const getAllSpacesController = async (req: Request, res: Response) => {
+export const getAllBookingController = async (req: Request, res: Response) => {
     try {
        
         const spaces = await bookingService.getAllBooking();
@@ -19,7 +19,7 @@ export const getAllSpacesController = async (req: Request, res: Response) => {
     }
 };
 
-export const getById = async (req: Request, res: Response) => {
+export const getBookingById = async (req: Request, res: Response) => {
     try {
       
         const { id } = req.params;

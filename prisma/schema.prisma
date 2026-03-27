@@ -51,13 +51,14 @@ enum Role {
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(cuid())
   name          String
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  password      String
   role          Role      @default(MEMBRE)
   sessions      Session[]
   accounts      Account[]
