@@ -47,14 +47,13 @@ export async function createBooking(data: BookingCreateDto, userId: string) {
   });
 }
 
-export async function updateBooking(data: BookingUpdateDto, userId: string) {
+// On garde id en argument séparé pour être cohérent avec le contrôleur
+export async function updateBooking(data: BookingUpdateDto, userId: string, id: string) {
   return db.booking.update({
-  
     where: { 
-      id: data.id,
-      userId: userId 
+      id: id,         // On utilise l'id direct (celui de req.params.id)
+      userId: userId  // Sécurité : vérifie que la résa appartient au user
     },
- 
     data: {
       date: data.date,
       startTime: data.startTime,
